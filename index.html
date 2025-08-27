@@ -123,7 +123,7 @@
       }
 
       /* Header Styles with fixed text effect */
-      /* header {
+      header {
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -187,88 +187,6 @@
           opacity: 1;
           transform: translateY(0);
         }
-      } */
-
-      /* Header Styles */
-      /* Styling for the overall header container */
-      header {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 100px 20px 80px;
-        position: relative;
-        overflow: hidden;
-      }
-
-      /* Styling for the content div */
-      .header-content {
-        max-width: 800px;
-        z-index: 2;
-      }
-
-      /* Styling for the main heading text */
-      h1 {
-        font-size: 4rem;
-        margin-bottom: 20px;
-        animation: fadeInDown 1s ease;
-        white-space: nowrap; /* Prevents the text from wrapping */
-      }
-
-      .fixed-heading {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 5rem;
-        color: rgba(100, 255, 218, 0.1);
-        z-index: -1;
-        white-space: nowrap;
-        pointer-events: none;
-        transition: all 0.5s ease;
-      }
-
-      /* Base style for both animated spans */
-      .typed-text,
-      .typed-text2 {
-        color: var(--accent);
-        border-right: 2px solid rgba(255, 255, 255, 0.75); /* Creates the blinking cursor effect */
-        animation: blinkCursor 0.75s step-end infinite;
-      }
-
-      /* Ensures the cursor only blinks on the last span */
-      .typed-text:last-of-type {
-        border-right: none;
-      }
-
-      .subheading {
-        font-size: 1.5rem;
-        margin-bottom: 30px;
-      }
-
-      /* Keyframes for the fade-in animation */
-      @keyframes fadeInDown {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* Keyframes for the blinking cursor */
-      @keyframes blinkCursor {
-        from,
-        to {
-          border-color: transparent;
-        }
-        50% {
-          border-color: rgba(255, 255, 255, 0.75);
-        }
       }
 
       .cta-button {
@@ -303,9 +221,8 @@
         width: 0%;
         height: 100%;
         background: var(--accent);
-        transition: all 0.3s ease;
-        z-index: -1;
         transition: width 0.3s ease;
+        z-index: -1;
       }
 
       .cta-button:hover::before {
@@ -663,7 +580,6 @@
         height: 2px;
         background: var(--accent);
         transition: width 0.3s ease;
-        transition: width 0.3s ease;
       }
 
       .certification-card a:hover {
@@ -787,14 +703,6 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 50px;
-      }
-
-      .contact-container {
-        background: linear-gradient(145deg, var(--card-bg), var(--secondary));
-        padding: 50px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(100, 255, 218, 0.1);
       }
 
       .contact-info {
@@ -1447,7 +1355,9 @@
     <!-- Footer -->
     <footer>
       <div class="social-links">
-        <a href="https://github.com/dhirajkumarroy"><i class="fab fa-github"></i></a>
+        <a href="https://github.com/dhirajkumarroy"
+          ><i class="fab fa-github"></i
+        ></a>
         <a href="#"><i class="fab fa-linkedin"></i></a>
         <a href="#"><i class="fab fa-twitter"></i></a>
         <a href="#"><i class="fab fa-instagram"></i></a>
@@ -1655,11 +1565,12 @@
       function loadSkills() {
         fetch(`${API_BASE}/skills`)
           .then((res) => res.json())
-          .then((skills) => {
+          .then((data) => {
             const slider = document.getElementById("skills-slider");
             const dotsContainer = document.getElementById("skills-dots");
             if (!slider) return;
 
+            const skills = data.content;
             if (skills.length === 0) {
               slider.innerHTML = '<p class="empty-state">No skills found</p>';
               return;

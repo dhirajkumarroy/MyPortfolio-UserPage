@@ -1,499 +1,692 @@
-const API_BASE = "https://dhiraj-my-portfolio-api.onrender.com/api";
 
-// Create particles for background
-function createParticles() {
-  const container = document.getElementById("particles");
-  if (!container) return;
-  const particleCount = 50;
+      // const API_BASE = "http://localhost:8080/api";
+      const API_BASE = "https://dhiraj-my-portfolio-api.onrender.com/api";
 
-  for (let i = 0; i < particleCount; i++) {
-    const particle = document.createElement("div");
-    particle.classList.add("particle");
+      // Create particles for background
+      function createParticles() {
+        const container = document.getElementById("particles");
+        if (!container) return;
+        const particleCount = 50;
 
-    const size = Math.random() * 5 + 3;
-    particle.style.width = `${size}px`;
-    particle.style.height = `${size}px`;
-    particle.style.left = `${Math.random() * 100}%`;
-    particle.style.top = `${Math.random() * 100}%`;
-    particle.style.animationDelay = `${Math.random() * 15}s`;
+        for (let i = 0; i < particleCount; i++) {
+          const particle = document.createElement("div");
+          particle.classList.add("particle");
 
-    container.appendChild(particle);
-  }
-}
+          // Random size between 3 and 8 pixels
+          const size = Math.random() * 5 + 3;
+          particle.style.width = `${size}px`;
+          particle.style.height = `${size}px`;
 
-// Navbar scroll effect
-function handleNavbarScroll() {
-  const navbar = document.querySelector(".navbar");
-  const backToTop = document.querySelector(".back-to-top");
+          // Random position
+          particle.style.left = `${Math.random() * 100}%`;
+          particle.style.top = `${Math.random() * 100}%`;
 
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 50) {
-      if (navbar) navbar.classList.add("scrolled");
-      if (backToTop) backToTop.classList.add("visible");
-    } else {
-      if (navbar) navbar.classList.remove("scrolled");
-      if (backToTop) backToTop.classList.remove("visible");
-    }
-  });
-}
+          // Random animation delay
+          particle.style.animationDelay = `${Math.random() * 15}s`;
 
-// Smooth scrolling for navigation links
-function initSmoothScrolling() {
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function (e) {
-      const targetId = this.getAttribute("href");
-      
-      if (targetId && targetId.startsWith('#') && targetId.length > 1) {
-        e.preventDefault();
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          window.scrollTo({
-            top: targetElement.offsetTop - 80,
-            behavior: "smooth",
-          });
+          // Random opacity for more depth
+          particle.style.opacity = Math.random() * 0.6 + 0.2;
+
+          container.appendChild(particle);
         }
       }
-    });
-  });
-}
 
-// Intersection Observer for animations
-function initIntersectionObserver() {
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: "0px 0px -50px 0px",
-  };
+      // Fixed heading effect
+      function setupFixedHeading() {
+        const fixedHeading = document.getElementById("fixed-heading");
+        if (!fixedHeading) return;
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        if (entry.target.classList.contains("skill-item")) {
-          const skillLevel = entry.target.getAttribute("data-level");
-          const skillProgress = entry.target.querySelector(".skill-progress");
-          if (skillProgress) {
-            setTimeout(() => {
-              skillProgress.style.width = skillLevel;
-            }, 300);
+        window.addEventListener("scroll", () => {
+          const scrollPosition = window.scrollY;
+          const windowHeight = window.innerHeight;
+
+          // Calculate opacity based on scroll position
+          const opacity = Math.max(
+            0.05,
+            0.2 - scrollPosition / (windowHeight * 2)
+          );
+          fixedHeading.style.opacity = opacity;
+
+          // Move the heading slightly with scroll
+          fixedHeading.style.transform = `translate(-50%, calc(-50% + ${
+            scrollPosition * 0.1
+          }px))`;
+        });
+      }
+
+      // Navbar scroll effect
+      function handleNavbarScroll() {
+        const navbar = document.querySelector(".navbar");
+        const backToTop = document.querySelector(".back-to-top");
+
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 50) {
+            if (navbar) navbar.classList.add("scrolled");
+            if (backToTop) backToTop.classList.add("visible");
+          } else {
+            if (navbar) navbar.classList.remove("scrolled");
+            if (backToTop) backToTop.classList.remove("visible");
           }
-        }
+        });
       }
-    });
-  }, observerOptions);
 
-  document
-    .querySelectorAll(".project-card, .skill-category, .skill-item")
-    .forEach((item) => {
-      observer.observe(item);
-    });
-}
+      // Smooth scrolling for navigation links
+      function initSmoothScrolling() {
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            const targetId = this.getAttribute("href");
 
-// Function to load and display the resume download button
-function loadResumeButton() {
-    const downloadBtn = document.getElementById('download-cv-btn');
-    if (!downloadBtn) return;
+            // Only perform smooth scrolling if the link is a local hash
+            if (targetId && targetId.startsWith("#") && targetId.length > 1) {
+              e.preventDefault();
+              const targetElement = document.querySelector(targetId);
+              if (targetElement) {
+                window.scrollTo({
+                  top: targetElement.offsetTop - 80,
+                  behavior: "smooth",
+                });
+              }
+            }
+          });
+        });
+      }
 
-    fetch(`${API_BASE}/resumes`)
-        .then(response => {
+      // Function to load and display the resume download button
+      function loadResumeButton() {
+        const downloadBtn = document.getElementById("download-cv-btn");
+        if (!downloadBtn) return;
+
+        // Fetch the resume list
+        fetch(`${API_BASE}/resumes`)
+          .then((response) => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+              throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
-        })
-        .then(data => {
+          })
+          .then((data) => {
             const resumes = data.content;
             if (resumes && resumes.length > 0) {
-                const resume = resumes[0];
-                downloadBtn.href = `${API_BASE}/resumes/download/${resume.id}`;
-                downloadBtn.style.display = 'inline-block';
+              const resume = resumes[0]; // Assuming only one resume is managed
+              // Set the href of the download button and make it visible
+              downloadBtn.href = `${API_BASE}/resumes/download/${resume.id}`;
+              downloadBtn.style.display = "inline-block";
             } else {
-                downloadBtn.style.display = 'none';
+              // Hide the button if no resume is found
+              downloadBtn.style.display = "none";
             }
-        })
-        .catch(error => {
-            console.error('Error fetching resume URL:', error);
-            downloadBtn.style.display = 'none';
-        });
-}
-
-// Load projects with animation
-function loadProjects() {
-  fetch(`${API_BASE}/projects`)
-    .then((res) => res.json())
-    .then((data) => {
-      const container = document.getElementById("projects-list");
-      const projects = data.content;
-      if (!container) return;
-
-      if (projects.length === 0) {
-        container.innerHTML = '<p class="empty-state">No projects found</p>';
-        return;
+          })
+          .catch((error) => {
+            console.error("Error fetching resume URL:", error);
+            downloadBtn.style.display = "none";
+          });
       }
 
-      projects.forEach((p, index) => {
-        const projectCard = document.createElement("div");
-        projectCard.classList.add("project-card");
+      // Generic slider initialization function
+      function initSlider(sliderId, dotsId, cardsPerViewFn) {
+        const slider = document.getElementById(sliderId);
+        const container = slider.closest(".slider-container");
+        const prevBtn = container.querySelector(".slider-btn.prev");
+        const nextBtn = container.querySelector(".slider-btn.next");
+        const dots = document.querySelectorAll(`#${dotsId} .slider-dot`);
 
-        projectCard.innerHTML = `
-              <div class="project-img">
-                <i class="fas fa-code"></i>
-              </div>
-              <div class="project-content">
-                <h3>${p.title}</h3>
-                <p>${p.description}</p>
-                <div class="tech-stack">
-                  <b>Tech Stack:</b> ${p.techStack.join(", ")}
-                </div>
-                <div class="projeect-link">
-                   ${
-                     p.githubLink
-                       ? `<a href="${p.githubLink}" target="_blank">
-                  <button>GitHub <i class="fab fa-github"></i></button>
-                   </a>`
-                       : ""
-                   }
-                </div>
-              </div>
-            `;
-        container.appendChild(projectCard);
-        setTimeout(() => {
-          projectCard.classList.add("visible");
-        }, 100 * index);
-      });
-    })
-    .catch((error) => {
-      console.error("Error loading projects:", error);
-      const container = document.getElementById("projects-list");
-      if(container) container.innerHTML = '<p class="empty-state">Failed to load projects. Please try again later.</p>';
-    });
-}
+        if (!slider || !prevBtn || !nextBtn) return;
 
-// Load skills with animation
-function loadSkills() {
-  fetch(`${API_BASE}/skills`)
-    .then((res) => res.json())
-    .then((data) => {
-      const container = document.getElementById("skills-list");
-      const skills = data.content;
-      if (!container) return;
+        let currentIndex = 0;
+        const cardCount = slider.children.length;
+        const cardsPerView = cardsPerViewFn();
 
-      if (skills.length === 0) {
-        container.innerHTML = '<p class="empty-state">No skills found</p>';
-        return;
-      }
+        // Function to update slider position
+        function updateSlider() {
+          const cardWidth = slider.children[0].offsetWidth + 30; // width + gap
+          slider.scrollTo({
+            left: currentIndex * cardWidth,
+            behavior: "smooth",
+          });
 
-      const skillCategories = {};
-      skills.forEach((skill) => {
-        const category = skill.category;
-        if (!skillCategories[category]) {
-          skillCategories[category] = [];
+          // Update active dot
+          dots.forEach((dot, index) => {
+            if (index === currentIndex) {
+              dot.classList.add("active");
+            } else {
+              dot.classList.remove("active");
+            }
+          });
         }
-        skillCategories[category].push(skill);
-      });
 
-      container.innerHTML = "";
-      for (const [category, skills] of Object.entries(skillCategories)) {
-        if (skills.length === 0) continue;
-        const categoryElement = document.createElement("div");
-        categoryElement.classList.add("skill-category");
-        const title = category.charAt(0).toUpperCase() + category.slice(1);
-        categoryElement.innerHTML = `<h3>${title}</h3>`;
-
-        skills.forEach((skill) => {
-          const skillItem = document.createElement("div");
-          skillItem.classList.add("skill-item");
-
-          let progressWidth = "50%";
-          const level = skill.level.toLowerCase();
-
-          if (level === "intermediate") {
-            progressWidth = "70%";
-          } else if (level === "expert") {
-            progressWidth = "90%";
+        // Next button click
+        nextBtn.addEventListener("click", () => {
+          if (currentIndex < cardCount - cardsPerView) {
+            currentIndex++;
+            updateSlider();
           }
-          skillItem.setAttribute("data-level", progressWidth);
-
-          skillItem.innerHTML = `
-              <div class="skill-name">
-                <span>${skill.name}</span>
-                <span class="skill-level">${skill.level}</span>
-              </div>
-              <div class="skill-bar">
-                <div class="skill-progress"></div>
-              </div>
-            `;
-          categoryElement.appendChild(skillItem);
         });
-        container.appendChild(categoryElement);
-        setTimeout(() => {
-          categoryElement.classList.add("visible");
-        }, 300);
+
+        // Previous button click
+        prevBtn.addEventListener("click", () => {
+          if (currentIndex > 0) {
+            currentIndex--;
+            updateSlider();
+          }
+        });
+
+        // Dot click
+        dots.forEach((dot) => {
+          dot.addEventListener("click", () => {
+            currentIndex = parseInt(dot.getAttribute("data-index"));
+            updateSlider();
+          });
+        });
+
+        // Handle window resize
+        window.addEventListener("resize", () => {
+          // Recalculate cards per view
+          const newCardsPerView = cardsPerViewFn();
+
+          // Adjust current index if needed
+          if (currentIndex > cardCount - newCardsPerView) {
+            currentIndex = Math.max(0, cardCount - newCardsPerView);
+            updateSlider();
+          }
+        });
       }
-    })
-    .catch((error) => {
-      console.error("Error loading skills:", error);
-      const container = document.getElementById("skills-list");
-      if(container) container.innerHTML = '<p class="empty-state">Failed to load skills. Please try again later.</p>';
-    });
-}
 
-// Load certifications from the API
-function loadCertifications() {
-    const certificationsContainer = document.getElementById('certifications-list');
-    if (!certificationsContainer) return;
-    const apiUrl = `${API_BASE}/certifications`;
+      // Load skills with animation
+      function loadSkills() {
+        fetch(`${API_BASE}/skills`)
+          .then((res) => res.json())
+          .then((skills) => {
+            const slider = document.getElementById("skills-slider");
+            const dotsContainer = document.getElementById("skills-dots");
+            if (!slider) return;
 
-    fetch(apiUrl)
-        .then(response => {
+            if (skills.length === 0) {
+              slider.innerHTML = '<p class="empty-state">No skills found</p>';
+              return;
+            }
+
+            // Group skills by category
+            const skillCategories = {};
+
+            skills.forEach((skill) => {
+              const category = skill.category;
+              if (!skillCategories[category]) {
+                skillCategories[category] = [];
+              }
+              skillCategories[category].push(skill);
+            });
+
+            // Clear the container before rendering new content
+            slider.innerHTML = "";
+            dotsContainer.innerHTML = "";
+
+            // Create skill categories and render skills
+            for (const [category, skills] of Object.entries(skillCategories)) {
+              if (skills.length === 0) continue;
+
+              const categoryElement = document.createElement("div");
+              categoryElement.classList.add("skill-category");
+
+              const title =
+                category.charAt(0).toUpperCase() + category.slice(1);
+              categoryElement.innerHTML = `<h3>${title}</h3>`;
+
+              skills.forEach((skill) => {
+                const skillItem = document.createElement("div");
+                skillItem.classList.add("skill-item");
+
+                let progressWidth = "50%"; // Default to a base level
+                const level = skill.level.toLowerCase();
+
+                if (level === "intermediate") {
+                  progressWidth = "70%";
+                } else if (level === "expert") {
+                  progressWidth = "90%";
+                }
+
+                skillItem.setAttribute("data-level", progressWidth);
+
+                skillItem.innerHTML = `
+                    <div class="skill-name">
+                      <span>${skill.name}</span>
+                      <span class="skill-level">${skill.level}</span>
+                    </div>
+                    <div class="skill-bar">
+                      <div class="skill-progress"></div>
+                    </div>
+                  `;
+
+                categoryElement.appendChild(skillItem);
+              });
+
+              slider.appendChild(categoryElement);
+            }
+
+            // Create dots for navigation
+            const cardCount = slider.children.length;
+            for (let i = 0; i < cardCount; i++) {
+              const dot = document.createElement("div");
+              dot.classList.add("slider-dot");
+              if (i === 0) dot.classList.add("active");
+              dot.setAttribute("data-index", i);
+              dotsContainer.appendChild(dot);
+            }
+
+            // Initialize slider functionality
+            setTimeout(() => {
+              initSlider("skills-slider", "skills-dots", () =>
+                window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3
+              );
+
+              // Animate skill bars
+              document.querySelectorAll(".skill-item").forEach((item) => {
+                const skillLevel = item.getAttribute("data-level");
+                const skillProgress = item.querySelector(".skill-progress");
+                if (skillProgress) {
+                  setTimeout(() => {
+                    skillProgress.style.width = skillLevel;
+                  }, 300);
+                }
+              });
+            }, 100);
+          })
+          .catch((error) => {
+            console.error("Error loading skills:", error);
+            const slider = document.getElementById("skills-slider");
+            if (slider)
+              slider.innerHTML =
+                '<p class="empty-state">Failed to load skills. Please try again later.</p>';
+          });
+      }
+
+      // Load projects with animation
+      function loadProjects() {
+        fetch(`${API_BASE}/projects`)
+          .then((res) => res.json())
+          .then((data) => {
+            const slider = document.getElementById("projects-slider");
+            const dotsContainer = document.getElementById("projects-dots");
+            const projects = data.content || data;
+
+            if (projects.length === 0) {
+              slider.innerHTML = '<p class="empty-state">No projects found</p>';
+              return;
+            }
+
+            slider.innerHTML = "";
+            dotsContainer.innerHTML = "";
+
+            projects.forEach((p, index) => {
+              const projectCard = document.createElement("div");
+              projectCard.classList.add("project-card");
+
+              projectCard.innerHTML = `
+                    <div class="project-img">
+                      <i class="fas fa-code"></i>
+                    </div>
+                    <div class="project-content">
+                      <h3>${p.title}</h3>
+                      <p>${p.description}</p>
+
+                      <div class="tech-stack">
+                        <b>Tech Stack:</b> ${p.techStack.join(", ")}
+                      </div>
+
+                      <div class="project-link">
+                        ${
+                          p.githubLink
+                            ? `<a href="${p.githubLink}" target="_blank"><button>GitHub <i class="fab fa-github"></i></button></a>`
+                            : ""
+                        }
+                      </div>
+                    </div>
+                  `;
+
+              slider.appendChild(projectCard);
+            });
+
+            // Create dots for navigation
+            const cardCount = slider.children.length;
+            for (let i = 0; i < cardCount; i++) {
+              const dot = document.createElement("div");
+              dot.classList.add("slider-dot");
+              if (i === 0) dot.classList.add("active");
+              dot.setAttribute("data-index", i);
+              dotsContainer.appendChild(dot);
+            }
+
+            // Initialize slider functionality
+            setTimeout(() => {
+              initSlider("projects-slider", "projects-dots", () =>
+                window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3
+              );
+            }, 100);
+          })
+          .catch((error) => {
+            console.error("Error loading projects:", error);
+            document.getElementById("projects-slider").innerHTML =
+              '<p class="empty-state">Failed to load projects. Please try again later.</p>';
+          });
+      }
+
+      // Load certifications from the API
+      function loadCertifications() {
+        const slider = document.getElementById("certifications-slider");
+        const dotsContainer = document.getElementById("certifications-dots");
+        if (!slider) return;
+
+        const apiUrl = `${API_BASE}/certifications`;
+
+        fetch(apiUrl)
+          .then((response) => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+              throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
-        })
-        .then(data => {
+          })
+          .then((data) => {
             const certifications = data.content;
             if (certifications.length === 0) {
-                certificationsContainer.innerHTML = '<p>No certifications to display yet.</p>';
-                return;
+              slider.innerHTML = "<p>No certifications to display yet.</p>";
+              return;
             }
-            certificationsContainer.innerHTML = '';
-            certifications.forEach(cert => {
-                const certificationCard = document.createElement('div');
-                certificationCard.classList.add('certification-card');
 
-                const name = document.createElement('h3');
-                name.textContent = cert.name;
-                
-                const issuer = document.createElement('p');
-                issuer.innerHTML = `<strong>Issued By:</strong> ${cert.issuingOrganization}`;
+            slider.innerHTML = "";
+            dotsContainer.innerHTML = "";
 
-                const issueDate = document.createElement('p');
-                issueDate.innerHTML = `<strong>Issue Date:</strong> ${cert.issueDate}`;
+            certifications.forEach((cert, index) => {
+              const certificationCard = document.createElement("div");
+              certificationCard.classList.add("certification-card");
 
-                certificationCard.appendChild(name);
-                certificationCard.appendChild(issuer);
-                certificationCard.appendChild(issueDate);
-                
-                if (cert.url) {
-                    const certLink = document.createElement('a');
-                    certLink.href = cert.url;
-                    certLink.textContent = 'View Credential';
-                    certLink.target = '_blank';
-                    certificationCard.appendChild(certLink);
+              certificationCard.innerHTML = `
+                <h3>${cert.name}</h3>
+                <p><strong>Issued By:</strong> ${cert.issuingOrganization}</p>
+                <p><strong>Issue Date:</strong> ${cert.issueDate}</p>
+                ${
+                  cert.url
+                    ? `<a href="${cert.url}" target="_blank">View Credential</a>`
+                    : ""
                 }
+              `;
 
-                certificationsContainer.appendChild(certificationCard);
+              slider.appendChild(certificationCard);
             });
-        })
-        .catch(error => {
-            console.error('Error fetching certifications:', error);
-            if (certificationsContainer) certificationsContainer.innerHTML = '<p>Failed to load certifications. Please try again later.</p>';
-        });
-}
 
-// Load education from the API
-function loadEducation() {
-    const educationContainer = document.getElementById('education-list');
-    if (!educationContainer) return;
-    const apiUrl = `${API_BASE}/education`;
+            // Create dots for navigation
+            const cardCount = slider.children.length;
+            for (let i = 0; i < cardCount; i++) {
+              const dot = document.createElement("div");
+              dot.classList.add("slider-dot");
+              if (i === 0) dot.classList.add("active");
+              dot.setAttribute("data-index", i);
+              dotsContainer.appendChild(dot);
+            }
 
-    fetch(apiUrl)
-        .then(response => {
+            // Initialize slider functionality
+            setTimeout(() => {
+              initSlider("certifications-slider", "certifications-dots", () =>
+                window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3
+              );
+            }, 100);
+          })
+          .catch((error) => {
+            console.error("Error fetching certifications:", error);
+            slider.innerHTML =
+              "<p>Failed to load certifications. Please try again later.</p>";
+          });
+      }
+
+      // Load education from the API
+      function loadEducation() {
+        const slider = document.getElementById("education-slider");
+        const dotsContainer = document.getElementById("education-dots");
+        if (!slider) return;
+
+        const apiUrl = `${API_BASE}/education`;
+
+        fetch(apiUrl)
+          .then((response) => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+              throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
-        })
-        .then(data => {
+          })
+          .then((data) => {
             const educationRecords = data.content;
             if (educationRecords.length === 0) {
-                educationContainer.innerHTML = '<p>No education records to display yet.</p>';
-                return;
+              slider.innerHTML = "<p>No education records to display yet.</p>";
+              return;
             }
-            educationContainer.innerHTML = '';
-            educationRecords.forEach(edu => {
-                const educationCard = document.createElement('div');
-                educationCard.classList.add('education-card');
 
-                const institution = document.createElement('h3');
-                institution.textContent = edu.institution;
+            slider.innerHTML = "";
+            dotsContainer.innerHTML = "";
 
-                const degree = document.createElement('p');
-                degree.innerHTML = `<strong>Degree:</strong> ${edu.degree}`;
+            educationRecords.forEach((edu) => {
+              const educationCard = document.createElement("div");
+              educationCard.classList.add("education-card");
 
-                const dates = document.createElement('p');
-                const endDateText = edu.endDate ? ` - ${edu.endDate}` : ' - Present';
-                dates.innerHTML = `<strong>Dates:</strong> ${edu.startDate}${endDateText}`;
-
-                educationCard.appendChild(institution);
-                educationCard.appendChild(degree);
-                educationCard.appendChild(dates);
-                
-                if (edu.fieldOfStudy) {
-                    const fieldOfStudy = document.createElement('p');
-                    fieldOfStudy.innerHTML = `<strong>Field of Study:</strong> ${edu.fieldOfStudy}`;
-                    educationCard.appendChild(fieldOfStudy);
+              educationCard.innerHTML = `
+                <h3><i class="fas fa-graduation-cap"></i> ${
+                  edu.institution
+                }</h3>
+                <p><i class="fas fa-certificate"></i> <strong>Degree:</strong> ${
+                  edu.degree
+                }</p>
+                <p><i class="fas fa-calendar-alt"></i> <strong>Dates:</strong> ${
+                  edu.startDate
+                }${edu.endDate ? ` - ${edu.endDate}` : " - Present"}</p>
+                ${
+                  edu.fieldOfStudy
+                    ? `<p><i class="fas fa-book"></i> <strong>Field of Study:</strong> ${edu.fieldOfStudy}</p>`
+                    : ""
                 }
+                ${
+                  edu.grade
+                    ? `<p><i class="fas fa-star"></i> <strong>Grade:</strong> ${edu.grade}</p>`
+                    : ""
+                }
+                ${
+                  edu.description
+                    ? `<p><i class="fas fa-info-circle"></i> <strong>Description:</strong> ${edu.description}</p>`
+                    : ""
+                }
+              `;
 
-                if (edu.grade) {
-                    const grade = document.createElement('p');
-                    grade.innerHTML = `<strong>Grade:</strong> ${edu.grade}`;
-                    educationCard.appendChild(grade);
-                }
-                
-                if (edu.description) {
-                    const description = document.createElement('p');
-                    description.innerHTML = `<strong>Description:</strong> ${edu.description}`;
-                    educationCard.appendChild(description);
-                }
-                
-                educationContainer.appendChild(educationCard);
+              slider.appendChild(educationCard);
             });
-        })
-        .catch(error => {
-            console.error('Error fetching education:', error);
-            if (educationContainer) educationContainer.innerHTML = '<p>Failed to load education records. Please try again later.</p>';
-        });
-}
 
-// Contact form with validation
-function setupContactForm() {
-  const contactForm = document.getElementById("contact-form");
-  const responseElement = document.getElementById("contact-response");
+            // Create dots for navigation
+            const cardCount = slider.children.length;
+            for (let i = 0; i < cardCount; i++) {
+              const dot = document.createElement("div");
+              dot.classList.add("slider-dot");
+              if (i === 0) dot.classList.add("active");
+              dot.setAttribute("data-index", i);
+              dotsContainer.appendChild(dot);
+            }
 
-  if (!contactForm) return;
-
-  contactForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const nameInput = document.getElementById("name");
-    const emailInput = document.getElementById("email");
-    const messageInput = document.getElementById("message");
-
-    const msg = {
-      name: nameInput.value,
-      email: emailInput.value,
-      message: messageInput.value,
-    };
-
-    // Client-side validation
-    if (msg.message.length < 5 || msg.message.length > 4000) {
-      responseElement.textContent =
-        "❌ Error: Message must be between 5 and 4000 characters.";
-      responseElement.style.color = "#ff6b6b";
-      return;
-    }
-
-    // Show loading state
-    responseElement.textContent = "Sending message...";
-    responseElement.style.color = "#64ffda";
-
-    try {
-      const res = await fetch(`${API_BASE}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(msg),
-      });
-
-      const text = await res.text();
-
-      if (res.ok) {
-        responseElement.textContent = "✅ Message sent successfully!";
-        responseElement.style.color = "#64ffda";
-        contactForm.reset();
-      } else {
-        responseElement.textContent = `❌ Error: ${text}`;
-        responseElement.style.color = "#ff6b6b";
+            // Initialize slider functionality
+            setTimeout(() => {
+              initSlider("education-slider", "education-dots", () =>
+                window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3
+              );
+            }, 100);
+          })
+          .catch((error) => {
+            console.error("Error fetching education:", error);
+            slider.innerHTML =
+              "<p>Failed to load education records. Please try again later.</p>";
+          });
       }
-    } catch (error) {
-      responseElement.textContent = "❌ Network error. Please try again later.";
-      responseElement.style.color = "#ff6b6b";
-    }
-  });
-}
 
-// Function for the typewriter effect
-function typewriterEffect() {
-  const typedTextSpan = document.querySelector(".typed-text");
-  if (!typedTextSpan) return;
-  const textToType = "Dhiraj";
-  let charIndex = 0;
-  let isDeleting = false;
+      // Contact form with validation
+      function setupContactForm() {
+        const contactForm = document.getElementById("contact-form");
+        const responseElement = document.getElementById("contact-response");
 
-  function type() {
-    const currentText = textToType.substring(0, charIndex);
-    typedTextSpan.textContent = currentText;
+        if (!contactForm) return;
 
-    if (!isDeleting && charIndex < textToType.length) {
-      charIndex++;
-      setTimeout(type, 150);
-    } else if (isDeleting && charIndex > 0) {
-      charIndex--;
-      setTimeout(type, 100);
-    } else if (!isDeleting && charIndex === textToType.length) {
-      isDeleting = true;
-      setTimeout(type, 1000);
-    } else if (isDeleting && charIndex === 0) {
-      isDeleting = false;
-      setTimeout(type, 500);
-    }
-  }
+        contactForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-  type();
-}
+          const nameInput = document.getElementById("name");
+          const emailInput = document.getElementById("email");
+          const messageInput = document.getElementById("message");
 
-// Function for the typewriter effect on the profession text
-function professionTypewriter() {
-  const typedTextSpan = document.querySelector(".typed-text2");
-  if (!typedTextSpan) return;
-  const phrases = [
-    "Java Backend Developer",
-    "Java Full Stack Developer",
-    "Machine Learning Engineer",
-    "Software Engineer",
-  ];
+          const msg = {
+            name: nameInput.value,
+            email: emailInput.value,
+            message: messageInput.value,
+          };
 
-  let phraseIndex = 0;
-  let charIndex = 0;
-  let isDeleting = false;
+          // Client-side validation
+          if (msg.message.length < 5 || msg.message.length > 4000) {
+            responseElement.textContent =
+              "❌ Error: Message must be between 5 and 4000 characters.";
+            responseElement.style.color = "#ff6b6b";
+            return;
+          }
 
-  function type() {
-    const currentPhrase = phrases[phraseIndex];
-    const currentText = currentPhrase.substring(0, charIndex);
-    typedTextSpan.textContent = currentText;
+          // Show loading state
+          responseElement.textContent = "Sending message...";
+          responseElement.style.color = "#64ffda";
 
-    if (!isDeleting && charIndex < currentPhrase.length) {
-      charIndex++;
-      setTimeout(type, 100);
-    } else if (isDeleting && charIndex > 0) {
-      charIndex--;
-      setTimeout(type, 50);
-    } else if (!isDeleting && charIndex === currentPhrase.length) {
-      isDeleting = true;
-      setTimeout(type, 1500);
-    } else if (isDeleting && charIndex === 0) {
-      isDeleting = false;
-      phraseIndex = (phraseIndex + 1) % phrases.length;
-      setTimeout(type, 500);
-    }
-  }
+          try {
+            const res = await fetch(`${API_BASE}/messages`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(msg),
+            });
 
-  type();
-}
+            const text = await res.text();
 
+            if (res.ok) {
+              responseElement.textContent = "✅ Message sent successfully!";
+              responseElement.style.color = "#64ffda";
+              contactForm.reset();
+            } else {
+              responseElement.textContent = `❌ Error: ${text}`;
+              responseElement.style.color = "#ff6b6b";
+            }
+          } catch (error) {
+            responseElement.textContent =
+              "❌ Network error. Please try again later.";
+            responseElement.style.color = "#ff6b6b";
+          }
+        });
+      }
 
-// Initialize everything when the page loads
-window.addEventListener("DOMContentLoaded", () => {
-  createParticles();
-  handleNavbarScroll();
-  initSmoothScrolling();
-  loadProjects();
-  loadSkills();
-  loadCertifications(); // Call the new load function
-  loadEducation();
-  loadResumeButton();
-  setupContactForm();
-  typewriterEffect();
-  professionTypewriter();
-});
+      // Function for the typewriter effect
+      function typewriterEffect() {
+        const typedTextSpan = document.querySelector(".typed-text");
+        if (!typedTextSpan) return;
+        const textToType = "Dhiraj";
+        let charIndex = 0;
+        let isDeleting = false;
 
+        function type() {
+          const currentText = textToType.substring(0, charIndex);
+          typedTextSpan.textContent = currentText;
+
+          if (!isDeleting && charIndex < textToType.length) {
+            charIndex++;
+            setTimeout(type, 150);
+          } else if (isDeleting && charIndex > 0) {
+            charIndex--;
+            setTimeout(type, 100);
+          } else if (!isDeleting && charIndex === textToType.length) {
+            isDeleting = true;
+            setTimeout(type, 1000);
+          } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            setTimeout(type, 500);
+          }
+        }
+
+        type();
+      }
+
+      // Function for the typewriter effect on the profession text
+      function professionTypewriter() {
+        const typedTextSpan = document.querySelector(".typed-text2");
+        if (!typedTextSpan) return;
+        const phrases = [
+          "Java Backend Developer",
+          "Java Full Stack Developer",
+          "Machine Learning Engineer",
+          "Software Engineer",
+        ];
+
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function type() {
+          const currentPhrase = phrases[phraseIndex];
+          const currentText = currentPhrase.substring(0, charIndex);
+          typedTextSpan.textContent = currentText;
+
+          if (!isDeleting && charIndex < currentPhrase.length) {
+            charIndex++;
+            setTimeout(type, 100);
+          } else if (isDeleting && charIndex > 0) {
+            charIndex--;
+            setTimeout(type, 50);
+          } else if (!isDeleting && charIndex === currentPhrase.length) {
+            isDeleting = true;
+            setTimeout(type, 1500);
+          } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+            setTimeout(type, 500);
+          }
+        }
+
+        type();
+      }
+
+      // Dark mode toggle
+      function initDarkModeToggle() {
+        const toggleBtn = document.querySelector(".theme-toggle");
+        const icon = toggleBtn.querySelector("i");
+
+        toggleBtn.addEventListener("click", () => {
+          document.body.classList.toggle("light-mode");
+
+          if (document.body.classList.contains("light-mode")) {
+            icon.classList.remove("fa-moon");
+            icon.classList.add("fa-sun");
+          } else {
+            icon.classList.remove("fa-sun");
+            icon.classList.add("fa-moon");
+          }
+        });
+      }
+
+      // Print functionality
+      function initPrintButton() {
+        const printBtn = document.querySelector(".print-btn");
+
+        printBtn.addEventListener("click", () => {
+          window.print();
+        });
+      }
+
+      // Initialize everything when the page loads
+      window.addEventListener("DOMContentLoaded", () => {
+        createParticles();
+        setupFixedHeading();
+        handleNavbarScroll();
+        initSmoothScrolling();
+        loadProjects();
+        loadSkills();
+        loadCertifications();
+        loadEducation();
+        loadResumeButton();
+        setupContactForm();
+        typewriterEffect();
+        professionTypewriter();
+        initDarkModeToggle();
+        initPrintButton();
+      });
+   
