@@ -1679,7 +1679,8 @@
             if (!slider) return;
 
             // FIX: Add a check to ensure data.content exists before proceeding
-            const skills = data && data.content ? data.content : [];
+            // const skills = data && data.content ? data.content : [];
+            const skills = data;
 
             if (skills.length === 0) {
               slider.innerHTML = '<p class="empty-state">No skills found</p>';
