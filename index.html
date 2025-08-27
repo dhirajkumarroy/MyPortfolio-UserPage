@@ -1562,6 +1562,114 @@
       }
 
       // Load skills with animation
+      // function loadSkills() {
+      //   fetch(`${API_BASE}/skills`)
+      //     .then((res) => res.json())
+      //     .then((data) => {
+      //       const slider = document.getElementById("skills-slider");
+      //       const dotsContainer = document.getElementById("skills-dots");
+      //       if (!slider) return;
+
+      //       const skills = data.content;
+      //       if (skills.length === 0) {
+      //         slider.innerHTML = '<p class="empty-state">No skills found</p>';
+      //         return;
+      //       }
+
+      //       // Group skills by category
+      //       const skillCategories = {};
+
+      //       skills.forEach((skill) => {
+      //         const category = skill.category;
+      //         if (!skillCategories[category]) {
+      //           skillCategories[category] = [];
+      //         }
+      //         skillCategories[category].push(skill);
+      //       });
+
+      //       // Clear the container before rendering new content
+      //       slider.innerHTML = "";
+      //       dotsContainer.innerHTML = "";
+
+      //       // Create skill categories and render skills
+      //       for (const [category, skills] of Object.entries(skillCategories)) {
+      //         if (skills.length === 0) continue;
+
+      //         const categoryElement = document.createElement("div");
+      //         categoryElement.classList.add("skill-category");
+
+      //         const title =
+      //           category.charAt(0).toUpperCase() + category.slice(1);
+      //         categoryElement.innerHTML = `<h3>${title}</h3>`;
+
+      //         skills.forEach((skill) => {
+      //           const skillItem = document.createElement("div");
+      //           skillItem.classList.add("skill-item");
+
+      //           let progressWidth = "50%"; // Default to a base level
+      //           const level = skill.level.toLowerCase();
+
+      //           if (level === "intermediate") {
+      //             progressWidth = "70%";
+      //           } else if (level === "expert") {
+      //             progressWidth = "90%";
+      //           }
+
+      //           skillItem.setAttribute("data-level", progressWidth);
+
+      //           skillItem.innerHTML = `
+      //               <div class="skill-name">
+      //                 <span>${skill.name}</span>
+      //                 <span class="skill-level">${skill.level}</span>
+      //               </div>
+      //               <div class="skill-bar">
+      //                 <div class="skill-progress"></div>
+      //               </div>
+      //             `;
+
+      //           categoryElement.appendChild(skillItem);
+      //         });
+
+      //         slider.appendChild(categoryElement);
+      //       }
+
+      //       // Create dots for navigation
+      //       const cardCount = slider.children.length;
+      //       for (let i = 0; i < cardCount; i++) {
+      //         const dot = document.createElement("div");
+      //         dot.classList.add("slider-dot");
+      //         if (i === 0) dot.classList.add("active");
+      //         dot.setAttribute("data-index", i);
+      //         dotsContainer.appendChild(dot);
+      //       }
+
+      //       // Initialize slider functionality
+      //       setTimeout(() => {
+      //         initSlider("skills-slider", "skills-dots", () =>
+      //           window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3
+      //         );
+
+      //         // Animate skill bars
+      //         document.querySelectorAll(".skill-item").forEach((item) => {
+      //           const skillLevel = item.getAttribute("data-level");
+      //           const skillProgress = item.querySelector(".skill-progress");
+      //           if (skillProgress) {
+      //             setTimeout(() => {
+      //               skillProgress.style.width = skillLevel;
+      //             }, 300);
+      //           }
+      //         });
+      //       }, 100);
+      //     })
+      //     .catch((error) => {
+      //       console.error("Error loading skills:", error);
+      //       const slider = document.getElementById("skills-slider");
+      //       if (slider)
+      //         slider.innerHTML =
+      //           '<p class="empty-state">Failed to load skills. Please try again later.</p>';
+      //     });
+      // }
+      // Load skills with animation
       function loadSkills() {
         fetch(`${API_BASE}/skills`)
           .then((res) => res.json())
@@ -1570,11 +1678,15 @@
             const dotsContainer = document.getElementById("skills-dots");
             if (!slider) return;
 
-            const skills = data.content;
+            // FIX: Add a check to ensure data.content exists before proceeding
+            const skills = data && data.content ? data.content : [];
+
             if (skills.length === 0) {
               slider.innerHTML = '<p class="empty-state">No skills found</p>';
               return;
             }
+
+            // The rest of your code remains the same...
 
             // Group skills by category
             const skillCategories = {};
@@ -1618,14 +1730,14 @@
                 skillItem.setAttribute("data-level", progressWidth);
 
                 skillItem.innerHTML = `
-                    <div class="skill-name">
-                      <span>${skill.name}</span>
-                      <span class="skill-level">${skill.level}</span>
-                    </div>
-                    <div class="skill-bar">
-                      <div class="skill-progress"></div>
-                    </div>
-                  `;
+              <div class="skill-name">
+                <span>${skill.name}</span>
+                <span class="skill-level">${skill.level}</span>
+              </div>
+              <div class="skill-bar">
+                <div class="skill-progress"></div>
+              </div>
+            `;
 
                 categoryElement.appendChild(skillItem);
               });
